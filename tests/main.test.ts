@@ -23,10 +23,10 @@ import { EnvParse } from '@fluidware-it/saddlebag';
 const runInCI = EnvParse.envBool('CI', false);
 
 describe('single rabbitmq', () => {
-  jest.setTimeout(runInCI ? 30000 : 10000);
+  jest.setTimeout(runInCI ? 60000 : 10000);
   beforeAll(async () => {
     startDocker('single');
-    await setTimeout(runInCI ? 5000 : 20000);
+    await setTimeout(runInCI ? 5000 : 50000);
   });
   afterAll(() => {
     cleanUpDocker('single');
