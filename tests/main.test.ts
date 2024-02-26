@@ -18,12 +18,15 @@ import * as assert from 'assert';
 import { cleanUpDocker, rabbitmq_password, rabbitmq_user, startDocker } from './testUtils';
 import { BrokerFactory, Consumer, Producer } from '../src';
 import { setTimeout } from 'timers/promises';
+import { EnvParse } from '@fluidware-it/saddlebag';
+
+const runInCI = EnvParse.envBool('CI', false);
 
 describe('single rabbitmq', () => {
-  jest.setTimeout(10000);
+  jest.setTimeout(runInCI ? 30000 : 10000);
   beforeAll(async () => {
     startDocker('single');
-    await setTimeout(5000);
+    await setTimeout(runInCI ? 5000 : 20000);
   });
   afterAll(() => {
     cleanUpDocker('single');
@@ -42,8 +45,8 @@ describe('single rabbitmq', () => {
       await consumer.connect();
     });
     afterEach(async () => {
-      await publisher.disconnect();
-      await consumer.disconnect();
+      publisher && (await publisher.disconnect());
+      consumer && (await consumer.disconnect());
     });
     it('publisher send 1 message', done => {
       consumer
