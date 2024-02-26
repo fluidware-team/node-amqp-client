@@ -22,11 +22,14 @@ import { EnvParse } from '@fluidware-it/saddlebag';
 
 const runInCI = EnvParse.envBool('CI', false);
 
+// eslint-disable-next-line no-console
+console.log('runInCI', runInCI);
+
 describe('single rabbitmq', () => {
-  jest.setTimeout(runInCI ? 60000 : 10000);
+  jest.setTimeout(runInCI ? 120000 : 10000);
   beforeAll(async () => {
     startDocker('single');
-    await setTimeout(runInCI ? 5000 : 50000);
+    await setTimeout(runInCI ? 5000 : 110000);
   });
   afterAll(() => {
     cleanUpDocker('single');
@@ -112,10 +115,9 @@ describe('single rabbitmq', () => {
       await consumerB.connect(1);
     });
     afterEach(async () => {
-      // await setTimeout(50000);
-      await publisher.disconnect();
-      await consumerA.disconnect();
-      await consumerB.disconnect();
+      publisher && (await publisher.disconnect());
+      consumerA && (await consumerA.disconnect());
+      consumerB && (await consumerB.disconnect());
     });
     it('publisher send multiple messages', done => {
       let count = 0;
@@ -185,9 +187,9 @@ describe('single rabbitmq', () => {
     });
     afterEach(async () => {
       // await setTimeout(50000);
-      await publisher.disconnect();
-      await consumerA.disconnect();
-      await consumerB.disconnect();
+      publisher && (await publisher.disconnect());
+      consumerA && (await consumerA.disconnect());
+      consumerB && (await consumerB.disconnect());
     });
     it('publisher send multiple messages', done => {
       let countA = 0;
