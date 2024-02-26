@@ -3,5 +3,16 @@ name: lint test compile
 on: push
 
 jobs:
-  node-lint-test-compile:
-    uses: fluidware-team/.github/.github/workflows/node-test.yml@v1
+  lint-test-compile:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - run: docker --version
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run compile
