@@ -1,0 +1,69 @@
+{
+  "name": "@fluidware-it/node-amqp-client",
+  "version": "0.0.1",
+  "main": "build/src/index.js",
+  "module": "build/esm/index.js",
+  "esnext": "build/esnext/index.js",
+  "types": "build/src/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Fluidware srl",
+  "license": "Apache-2.0",
+  "scripts": {
+    "prepack": "npm run compile",
+    "compile": "npm run clean && tsc --build tsconfig.json tsconfig.esm.json tsconfig.esnext.json",
+    "clean": "tsc --build --clean tsconfig.json tsconfig.esm.json tsconfig.esnext.json",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "coverage": "c8 report --reporter=cobertura --reporter=lcov",
+    "preversion": "npm ci --prefer-offline && npm run lint && npm run compile && npm run test",
+    "test": "NODE_ENV=test c8 mocha --reporter mocha-multi-reporters --reporter-options configFile=.mocha.json tests/*.test.*",
+    "ver": "echo $npm_package_version"
+  },
+  "dependencies": {
+    "amqp-connection-manager": "4.1.15",
+    "amqplib": "0.10.9"
+  },
+  "devDependencies": {
+    "@fluidware-it/saddlebag": "0.3.0",
+    "@testcontainers/rabbitmq": "12.1.0",
+    "@types/amqplib": "0.10.6",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^22",
+    "@typescript-eslint/eslint-plugin": "^5.54.1",
+    "@typescript-eslint/parser": "^5.54.1",
+    "c8": "^9.1.0",
+    "eslint": "^7.20.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "mocha": "12.0.0",
+    "mocha-multi-reporters": "^1.5.2",
+    "mocha-sonarqube-reporter": "^1.0.2",
+    "pino": "^10.3.1",
+    "prettier": "^2.2.1",
+    "testcontainers": "12.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "5.9.3"
+  },
+  "files": [
+    "build/esm/**/*.js",
+    "build/esm/**/*.js.map",
+    "build/esm/**/*.d.ts",
+    "build/esnext/**/*.js",
+    "build/esnext/**/*.js.map",
+    "build/esnext/**/*.d.ts",
+    "build/src/**/*.js",
+    "build/src/**/*.js.map",
+    "build/src/**/*.d.ts",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "peerDependencies": {
+    "@fluidware-it/saddlebag": "^0.3.0"
+  }
+}
