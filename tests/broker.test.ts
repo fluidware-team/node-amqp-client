@@ -251,14 +251,27 @@ describe('RabbitBroker.connectToBroker (mocked)', function () {
     assert.strictEqual(capturedExitCode, undefined);
   });
 
-  it('calls process.exit(10) on connectFailed after being connected', async function () {
-    installFakeConnect(emit => {
-      emit('connect', {});
-      for (let i = 0; i < 4; i++) {
-        emit('connectFailed', { err: new Error('test error') });
-      }
-    });
-    await RabbitBroker.connectToBroker();
-    assert.strictEqual(capturedExitCode, 10);
+  it('sends SIGTERM on connectFailed after being connected', async function () {
+    let sigtermReceived = false;
+    const onSigterm = () => {
+      sigtermReceived = true;
+    };
+    process.once('SIGTERM', onSigterm);
+
+    try {
+      installFakeConnect(emit => {
+        emit('connect', {});
+        for (let i = 0; i < 4; i++) {
+          emit('connectFailed', { err: new Error('test error') });
+        }
+      });
+      await RabbitBroker.connectToBroker();
+      // process.kill(process.pid, 'SIGTERM') dispatches the signal asynchronously.
+      await new Promise(resolve => setImmediate(resolve));
+      assert.strictEqual(sigtermReceived, true);
+      assert.strictEqual(capturedExitCode, undefined);
+    } finally {
+      process.removeListener('SIGTERM', onSigterm);
+    }
   });
 });

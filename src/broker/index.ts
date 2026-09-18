@@ -54,7 +54,7 @@ async function getBrokerConnection(): Promise<AmqpConnectionManager> {
           isFunctionReturned = true;
           void connection.close();
         } else {
-          process.exit(10);
+          process.kill(process.pid, 'SIGTERM');
         }
       }
     });
@@ -67,7 +67,6 @@ async function getBrokerConnection(): Promise<AmqpConnectionManager> {
       logger.debug(`onExit(${signal}) -> closing broker connection`);
       await connection.close();
       logger.debug(`onExit(${signal}) -> closed broker connection`);
-      process.kill(process.pid, signal);
     }
 
     process.once('SIGTERM', async () => {
@@ -93,18 +92,6 @@ export class RabbitBroker {
           .then(conn => {
             logger.info('Broker connected');
             connected = true;
-
-            process.once('SIGINT', async () => {
-              logger.info('Shutting down broker');
-              try {
-                await conn.close();
-                logger.info('Broker disconnected');
-              } catch (e) {
-                logger.error(e);
-              }
-              logger.info('halt');
-              process.kill(process.pid, 'SIGINT');
-            });
             resolve(conn);
           })
           .catch(e => {
@@ -115,7 +102,8 @@ export class RabbitBroker {
 
               if (retries >= 10) {
                 logger.error('Giving it up, too many failures');
-                process.exit(1);
+                process.kill(process.pid, 'SIGTERM');
+                return;
               }
 
               setTimeout(() => {
